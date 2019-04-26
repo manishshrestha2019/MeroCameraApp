@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -15,6 +16,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -56,6 +61,11 @@ public class MainActivity extends AppCompatActivity {
         if(requestCode==1 && resultCode==RESULT_OK){
             Bundle extras=data.getExtras();
             Bitmap imageBitmap=(Bitmap) extras.get("data");
+
+            String partFilename=currentDateFormat();
+            storeCameraPhotoInSDCard(imageBitmap,partFilename);
+
+
             image_view.setImageBitmap(imageBitmap);
         }
     }
@@ -63,5 +73,18 @@ public class MainActivity extends AppCompatActivity {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HH_mm_ss");
         String  currentTimeStamp = dateFormat.format(new Date());
         return currentTimeStamp;
+    }
+    private void storeCameraPhotoInSDCard(Bitmap bitmap, String currentDate){
+        File outputFile = new File(Environment.getExternalStorageDirectory(), "photo_" + currentDate + ".jpg");
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+            fileOutputStream.flush();
+            fileOutputStream.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
